@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SRK Family Quiz 💖</title>
+<style>
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#ffc9e8,#d6b3ff);
+overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.page{
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+animation:fade 0.5s;
+}
+.active{
+display:flex;
+}
+@keyframes fade{
+from{opacity:0; transform:translateY(40px)}
+to{opacity:1; transform:translateY(0)}
+}
+.card{
+background:rgba(255,255,255,0.35);
+backdrop-filter:blur(12px);
+padding:35px;
+border-radius:25px;
+width:90%;
+max-width:600px;
+box-shadow:0 10px 40px rgba(0,0,0,0.2);
+text-align:center;
+}
+h1{
+color:#8f4cff;
+}
+button{
+display:none;
+background:#ff7ac8;
+border:none;
+padding:12px 25px;
+border-radius:15px;
+color:white;
+font-size:16px;
+margin-top:20px;
+cursor:pointer;
+transition:0.3s;
+}
+button:hover{transform:scale(1.05);background:#ff5bb7;}
+.question{margin-top:18px;text-align:left;}
+.option{display:block;margin:8px 0;padding:8px 10px;border-radius:10px;cursor:pointer;transition:0.3s;background:rgba(255,255,255,0.5);}
+.option.correct{background:#9ef69e;}
+.option.wrong{background:#f69e9e;}
+.result{font-size:28px;color:#8f4cff;margin-top:10px;}
+.quote{margin-top:10px;font-style:italic;}
+.progress-container{width:100%;background:rgba(255,255,255,0.3);border-radius:15px;height:25px;margin-top:15px;overflow:hidden;}
+.progress-bar{height:100%;width:0;background:#ff7ac8;border-radius:15px;transition:width 0.5s ease;}
+.hearts{position:fixed;width:100%;height:100%;top:0;left:0;pointer-events:none;}
+.heart{position:absolute;color:#ff6cc9;animation:float 6s linear infinite;}
+@keyframes float{0%{transform:translateY(100vh)}100%{transform:translateY(-10vh)}}
+.confetti{position:fixed;width:100%;height:100%;top:0;left:0;pointer-events:none;z-index:9999;}
+</style>
+</head>
+<body>
+<div class="hearts" id="hearts"></div>
+<div class="confetti" id="confetti"></div>
+
+<!-- INTRO -->
+<div class="page active" id="intro">
+<div class="card">
+<h1>SRK Family Quiz 💖</h1>
+<p>Hello my dear family! <br><br>
+I feel so excited to present this small quiz for you.<br>
+This quiz is about <b>how well you know me!</b> 😄<br><br>
+I hope you'll enjoy answering it.<br>All the very best! ✨</p>
+<button onclick="nextQuestion()">Start Quiz 🎉</button>
+</div>
+</div>
+
+<!-- QUIZ -->
+<div class="page" id="quiz">
+<div class="card">
+<h1 id="qText"></h1>
+<div id="options"></div>
+</div>
+</div>
+
+<!-- RESULT -->
+<div class="page" id="result">
+<div class="card">
+<h1>Your Result 🎉</h1>
+<div class="result" id="score"></div>
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+<div class="quote" id="quote"></div>
+<p style="margin-top:20px">Thank you for participating in <b>SRK Quiz</b> 💖<br>Nanri! Vannakkam 🙏</p>
+</div>
+</div>
+
+<script>
+const questions=[
+{q:"1. If I had a superhero power what power would it be?",a:"Spiderman",opts:["Superman","Spiderman","Ironman","Hulk"]},
+{q:"2. What food will I eat everyday without getting bored?",a:"Biriyani",opts:["Maggi","Biriyani","Pasta","Fried Rice"]},
+{q:"3. What is my favorite family vacation spot?",a:"Temple",opts:["Beach","Temple","Hills","Monuments"]},
+{q:"4. Apart from my career what am I passioned for?",a:"Director",opts:["Fashion Designer","Director","Actor","Singer"]},
+{q:"5. What is my favorite restaurant here in Coimbatore?",a:"Haribhavanam",opts:["Cock Raco","Haribhavanam","SS Hyderabad Biriyani","Erode Amman Mess"]},
+{q:"6. What is my favorite car?",a:"Lamborghini",opts:["Rolls Royce","Lamborghini","Benz","BMW"]}
+];
+
+let current=0;
+let score=0;
+
+// Show question
+function nextQuestion(){
+if(current>=questions.length){showResult();return;}
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById("quiz").classList.add("active");
+let q=questions[current];
+document.getElementById("qText").innerText=q.q;
+let optsDiv=document.getElementById("options");
+optsDiv.innerHTML="";
+q.opts.forEach(opt=>{
+let btn=document.createElement("div");
+btn.className="option";
+btn.innerText=opt;
+btn.onclick=()=>checkAnswer(btn,opt);
+optsDiv.appendChild(btn);
+});
+}
+
+// Check answer and mark immediately
+function checkAnswer(btn,opt){
+let correct=questions[current].a;
+if(opt===correct){btn.classList.add("correct");score+=2;}
+else{btn.classList.add("wrong");}
+// highlight correct option if wrong
+if(opt!==correct){
+[...document.getElementsByClassName("option")].forEach(o=>{
+if(o.innerText===correct){o.classList.add("correct");}
+});
+}
+current++;
+setTimeout(nextQuestion,1000);
+}
+
+// Result page
+function showResult(){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+document.getElementById("result").classList.add("active");
+document.getElementById("score").innerText="You scored "+score+" / 12";
+document.getElementById("progressBar").style.width=(score/12*100)+"%";
+let msg="";
+if(score==12){msg="Perfect! You know me better than anyone ❤️";confettiBurst();}
+else if(score>=8){msg="Amazing! You know me very well! 🎉";}
+else if(score>=4){msg="Nice try! But you still have to know me more 😉";}
+else{msg="Oh no! Looks like we need more family time 😄";}
+document.getElementById("quote").innerText=msg;
+}
+
+// Floating hearts
+function createHearts(){
+let container=document.getElementById("hearts");
+setInterval(()=>{
+let heart=document.createElement("div");
+heart.className="heart";heart.innerText="❤";
+heart.style.left=Math.random()*100+"%";
+heart.style.fontSize=(Math.random()*25+10)+"px";
+container.appendChild(heart);
+setTimeout(()=>heart.remove(),6000);
+},300);
+}
+createHearts();
+
+// Confetti
+function confettiBurst(){
+let conf=document.getElementById("confetti");
+for(let i=0;i<100;i++){
+let c=document.createElement("div");
+c.innerText="🎊";
+c.style.position="absolute";
+c.style.left=Math.random()*100+"%";
+c.style.top=Math.random()*100+"%";
+c.style.fontSize=(Math.random()*20+10)+"px";
+conf.appendChild(c);
+setTimeout(()=>c.remove(),4000);
+}
+}
+</script>
+</body>
+</html>
